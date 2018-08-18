@@ -34,15 +34,15 @@ let scrape = async (searchQuery, searchOrderId) => {
   });
   browser.close();
   // console.log(stories);
-  await page.waitFor(5000);
-  //when the page closes (scrapping is over) calls the Ganymede Report API for posting results
+  // await page.waitFor(5000);
   const results = {
+    status: 'processed',
     searchOrderId,
     searchQuery,
     name: 'Tremendous Chair',
     sku: '1234412',
     price: '50.0',
-    category: 'silla de aquellas',
+    category: 'silla de aquellas no hay mas',
     description: 'la mejó silla del monde',
     images: [
       'http://globallingo.co/wp-content/uploads/2018/08/ethan-allen-charlotte-nc-medium-size-of-tremendous-chair-alt-chair-in-chairs-ethan-allen-charlotte-north-carolina.jpg',
@@ -50,13 +50,27 @@ let scrape = async (searchQuery, searchOrderId) => {
     ],
   };
 
-  // page.on('close', postResults(results));
+  page.on('close', postResults(results));
   // return result;
 };
 
+//when the scrapping is over, calls the API in Ganymede for posting results
 const postResults = data => {
   console.log('postResults');
   console.log(data);
+  axios
+    .post('http://localhost:4000/api/report', { data })
+    .then(response => {
+      handleResponse(response);
+    })
+    .catch(error => {
+      console.log(error.response);
+    });
+};
+
+const handleResponse = response => {
+  console.log('response:');
+  console.log(response.data);
 };
 
 // scrape().then(value => {

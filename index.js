@@ -2,6 +2,7 @@ const Koa = require('koa');
 const bodyParser = require('koa-bodyparser');
 const errorHandler = require('koa-better-error-handler');
 const koa404Handler = require('koa-404-handler');
+const puppeteer = require('puppeteer');
 
 const app = new Koa();
 app.context.onerror = errorHandler;

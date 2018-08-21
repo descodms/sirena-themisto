@@ -6,6 +6,8 @@ const router = new Router();
 
 /* API ROUTES */
 router.post('/api/start', scrapperController.start);
-// router.post('/api/product/search', scrapperController.crawlerTest);
+
+//fake route callbackURL
+router.post('/api/callbackurl', scrapperController.call);
 
 module.exports = router;

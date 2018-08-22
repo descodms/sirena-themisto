@@ -21,7 +21,7 @@ exports.start = ctx => {
 let scrape = async searchQuery => {
   let page = {};
   try {
-    const browser = await puppeteer.launch({ headless: false });
+    const browser = await puppeteer.launch({ headless: true });
     [page] = await browser.pages();
   } catch (error) {
     console.log('error at launch', error);
@@ -47,7 +47,7 @@ let scrape = async searchQuery => {
   });
   totalItem--;
   console.log(totalItem);
-  totalItem = 35;
+  totalItem = 1;
 
   for (let index = 0; index < totalItem; index++) {
     let searchURL = `https://www.easy.com.ar/webapp/wcs/stores/servlet/SearchDisplay?storeId=10151&catalogId=10051&langId=-5&pageSize=1&beginIndex=${index}&searchSource=Q&sType=SimpleSearch&resultCatEntryType=2&showResultsPage=true&pageView=image&searchTerm=${searchQuery}`;
@@ -75,8 +75,8 @@ let scrape = async searchQuery => {
     try {
       product = await page.evaluate(() => {
         //! some products fail at this
-        const category = document.querySelector('#breadcrumb > a:nth-child(3)')
-          .href;
+        // const category = document.querySelector('#breadcrumb > a:nth-child(3)')
+        //   .href;
         const results = Array.from(
           document.querySelectorAll('.product-description'),
         );
@@ -85,15 +85,15 @@ let scrape = async searchQuery => {
             result
               .querySelector('.product-description > span:nth-child(3)')
               .textContent.trim() || '';
-          //! some products fail at this
-          const discountPrice =
-            result.querySelector('.price-mas').textContent.trim() || '';
+          // //! some products fail at this
+          // const discountPrice =
+          //   result.querySelector('.price-mas').textContent.trim() || '';
           return {
             name: result.querySelector('.prod-title').textContent.trim() || '',
             sku,
             price: result.querySelector('.price-e').textContent.trim() || '',
-            category,
-            discountPrice,
+            category: '',
+            discountPrice: '',
             description:
               result.querySelector('.prod-title').textContent.trim() || '',
             images: `https://easyar.scene7.com/is/image/EasyArg/${sku}`,

@@ -20,14 +20,13 @@ exports.start = ctx => {
 
 let scrape = async searchQuery => {
   let page = {};
+  let products = [];
   try {
     const browser = await puppeteer.launch({ headless: true });
     [page] = await browser.pages();
   } catch (error) {
     console.log('error at launch', error);
   }
-  let products = [];
-  let product = [];
   page.on('error', err => {
     // console.log('error happen at the page: ', err);
   });
@@ -47,9 +46,11 @@ let scrape = async searchQuery => {
   });
   totalItem--;
   console.log(totalItem);
-  totalItem = 1;
+  totalItem = 50;
 
-  for (let index = 0; index < totalItem; index++) {
+  for (let index = 16; index < totalItem; index++) {
+    let product = {};
+    //navigate through products via url
     let searchURL = `https://www.easy.com.ar/webapp/wcs/stores/servlet/SearchDisplay?storeId=10151&catalogId=10051&langId=-5&pageSize=1&beginIndex=${index}&searchSource=Q&sType=SimpleSearch&resultCatEntryType=2&showResultsPage=true&pageView=image&searchTerm=${searchQuery}`;
     try {
       await page.goto(searchURL, { waitUntil: 'networkidle2' });
@@ -57,9 +58,10 @@ let scrape = async searchQuery => {
       console.log('error search url dentro del for', error);
     }
 
+    //click on each product
     try {
-      await page.waitForSelector(`#WC_CatalogSearchResultDisplay_div_6_1`);
       const [response] = await Promise.all([
+        page.waitForSelector(`#WC_CatalogSearchResultDisplay_div_6_1`),
         page.waitForNavigation(),
         page.click(`#WC_CatalogSearchResultDisplay_div_6_1`),
       ]);
@@ -72,45 +74,71 @@ let scrape = async searchQuery => {
       console.log('breadcrumb');
     }
 
+    //grab the data for each product
     try {
-      product = await page.evaluate(() => {
-        //! some products fail at this
-        // const category = document.querySelector('#breadcrumb > a:nth-child(3)')
-        //   .href;
-        const results = Array.from(
-          document.querySelectorAll('.product-description'),
-        );
-        return results.map(result => {
-          const sku =
-            result
-              .querySelector('.product-description > span:nth-child(3)')
-              .textContent.trim() || '';
-          // //! some products fail at this
-          // const discountPrice =
-          //   result.querySelector('.price-mas').textContent.trim() || '';
-          return {
-            name: result.querySelector('.prod-title').textContent.trim() || '',
-            sku,
-            price: result.querySelector('.price-e').textContent.trim() || '',
-            category: '',
-            discountPrice: '',
-            description:
-              result.querySelector('.prod-title').textContent.trim() || '',
-            images: `https://easyar.scene7.com/is/image/EasyArg/${sku}`,
-          };
-        });
-      });
-      products.push(product[0]);
-      try {
-        await page.goBack();
-      } catch (error) {
-        console.log('goback');
-      }
+      //! some products fail at this
+      product.category = await page.$eval(
+        '#breadcrumb > a:nth-child(3)',
+        item => item.href,
+      );
     } catch (error) {
-      console.log('error evaluate', error);
-      console.log(index);
-      continue;
+      console.log('error en category');
+      product.category = '';
     }
+    try {
+      //! some products fail at this
+      product.discountPrice = await page.$eval(
+        '.product-description .price-mas',
+        item => item.textContent.trim(),
+      );
+    } catch (error) {
+      console.log('error en discountPrice');
+      product.discountPrice = '';
+    }
+    try {
+      product.name = await page.$eval(
+        '.product-description .prod-title',
+        item => item.textContent.trim(),
+      );
+    } catch (error) {
+      console.log('error en name');
+      product.name = '';
+    }
+    try {
+      product.sku = await page.$eval(
+        '.product-description > span:nth-child(3)',
+        item => item.textContent.trim(),
+      );
+    } catch (error) {
+      console.log('error en sku');
+      product.sku = '';
+    }
+    try {
+      product.price = await page.$eval('.product-description .price-e', item =>
+        item.textContent.trim(),
+      );
+    } catch (error) {
+      console.log('error en price');
+      product.price = '';
+    }
+    try {
+      product.description = product.name;
+    } catch (error) {
+      console.log('error en description');
+      product.description = '';
+    }
+    try {
+      product.images = `https://easyar.scene7.com/is/image/EasyArg/${
+        product.sku
+      }`;
+    } catch (error) {
+      console.log('error en images');
+      product.images = '';
+    }
+
+    const l = products.push(product);
+    console.log(l);
+    console.log(product);
   }
 
   const results = {

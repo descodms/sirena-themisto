@@ -2,24 +2,43 @@ const puppeteer = require('puppeteer');
 const axios = require('axios');
 const config = require('config');
 
-//TODO login (Themisto) with request credentials on provider url
-//TODO bug: category, discountPrice
+/**
+ *
+ * @param {*} ctx
+ * fake callbackurl
+ */
 exports.call = ctx => {
   console.log('callbackURL');
   console.log(ctx.request.body);
 };
 
+/**
+ *
+ * @param {*} ctx
+ * function to handle API request from Ganymede
+ */
 exports.start = ctx => {
   const searchQuery = ctx.request.body.searchQuery;
+  const searchOrderId = ctx.request.body.searchOrderId;
   const limit = ctx.request.body.limit;
   const response = {
     status: 'ok',
   };
   ctx.body = response;
-  scrape(searchQuery, limit);
+  scrape(searchQuery, searchOrderId, limit);
 };
 
-let scrape = async (searchQuery, limit) => {
+/**
+ *
+ * @param {*} searchQuery
+ * @param {*} searchOrderId
+ * @param {*} limit
+ * Scrapping with puppeteer
+ * TODO login (Themisto) with request credentials on provider url
+ * TODO bug: category, discountPrice
+ *
+ */
+let scrape = async (searchQuery, searchOrderId, limit) => {
   let page = {};
   let products = [];
   try {
@@ -44,7 +63,6 @@ let scrape = async (searchQuery, limit) => {
     console.log('error search url', error);
   }
 
-  initialItem = 0;
   totalItem = await page.evaluate(() => {
     return document.querySelector('.search-results').textContent.trim();
   });
@@ -150,6 +168,7 @@ let scrape = async (searchQuery, limit) => {
 
   const results = {
     searchQuery,
+    searchOrderId,
     products,
     /*products: [
       {
@@ -193,7 +212,13 @@ let scrape = async (searchQuery, limit) => {
   // postResults(results);
 };
 
-//when the scrapping is over, calls the API in Ganymede for posting results
+/**
+ *
+ * @param {*} data
+ * when the scrapping is over, calls the API in Ganymede for posting results
+ * TODO JWT authentication
+ *
+ */
 const postResults = data => {
   console.log('postResults');
   const ganymedeAPI = config.get('Ganymede.API');

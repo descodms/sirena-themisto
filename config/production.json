@@ -1,0 +1,7 @@
+{
+  "Ganymede": {
+    "API": {
+      "url": "https://sirena-ganymede.herokuapp.com/api/report"
+    }
+  }
+}

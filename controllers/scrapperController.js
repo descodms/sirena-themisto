@@ -46,9 +46,9 @@ let scrape = async searchQuery => {
   });
   totalItem--;
   console.log(totalItem);
-  totalItem = 50;
+  totalItem = 2;
 
-  for (let index = 16; index < totalItem; index++) {
+  for (let index = 0; index < totalItem; index++) {
     let product = {};
     //navigate through products via url
     let searchURL = `https://www.easy.com.ar/webapp/wcs/stores/servlet/SearchDisplay?storeId=10151&catalogId=10051&langId=-5&pageSize=1&beginIndex=${index}&searchSource=Q&sType=SimpleSearch&resultCatEntryType=2&showResultsPage=true&pageView=image&searchTerm=${searchQuery}`;

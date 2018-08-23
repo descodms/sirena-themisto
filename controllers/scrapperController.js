@@ -66,8 +66,6 @@ let scrape = async (searchQuery, searchOrderId, limit) => {
   totalItem = await page.evaluate(() => {
     return document.querySelector('.search-results').textContent.trim();
   });
-  totalItem--;
-  console.log(totalItem);
   //if limit is empty then scrapping all products
   if (limit === '') {
     limit = totalItem;

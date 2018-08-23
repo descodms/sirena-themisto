@@ -22,7 +22,10 @@ let scrape = async searchQuery => {
   let page = {};
   let products = [];
   try {
-    const browser = await puppeteer.launch({ headless: true });
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
     [page] = await browser.pages();
   } catch (error) {
     console.log('error at launch', error);

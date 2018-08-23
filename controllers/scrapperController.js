@@ -11,14 +11,15 @@ exports.call = ctx => {
 
 exports.start = ctx => {
   const searchQuery = ctx.request.body.searchQuery;
+  const limit = ctx.request.body.limit;
   const response = {
     status: 'ok',
   };
   ctx.body = response;
-  scrape(searchQuery);
+  scrape(searchQuery, limit);
 };
 
-let scrape = async searchQuery => {
+let scrape = async (searchQuery, limit) => {
   let page = {};
   let products = [];
   try {
@@ -49,9 +50,12 @@ let scrape = async searchQuery => {
   });
   totalItem--;
   console.log(totalItem);
-  totalItem = 2;
+  //if limit is empty then scrapping all products
+  if (limit === '') {
+    limit = totalItem;
+  }
 
-  for (let index = 0; index < totalItem; index++) {
+  for (let index = 0; index < limit; index++) {
     let product = {};
     //navigate through products via url
     let searchURL = `https://www.easy.com.ar/webapp/wcs/stores/servlet/SearchDisplay?storeId=10151&catalogId=10051&langId=-5&pageSize=1&beginIndex=${index}&searchSource=Q&sType=SimpleSearch&resultCatEntryType=2&showResultsPage=true&pageView=image&searchTerm=${searchQuery}`;
